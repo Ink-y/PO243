@@ -104,8 +104,8 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-        const URL = 'https://rncerhgizyjhovbdpqnl.supabase.co';
-        const KEY = 'sb_publishable_Thtft56uBeaKf8FyndIFTG_O0HMJ5yh';
+        const URL = 'https://enkhcfubkyncpfndzsjr.supabase.co';
+        const KEY = 'sb_publishable_kdI1Tj2bSK1f4ZG9WUVp9Q_4frIHtkf';
         const supabase = createClient(URL, KEY);
 
         const MY_ID = '38314be8-676e-4127-8301-702199a07ff1';
