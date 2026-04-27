@@ -1,57 +1,161 @@
-HTML
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Облачная практика</title>
-  <style>
-    body { font-family: sans-serif; display: flex; justify-content: center; padding: 50px; background-color:#f4f4f9;}
-    .form-container {background: white; padding: 25px; border-radius: 10px; box-shadown: 0 4px 15px rgba(0,0,0,0.1); width:300px;}
-    input {width: 100%;padding: 10px; margin-bottom: 15px; border: 1px solid #cccl border-radius: 5px; box-sizing: border-box;}
-    buttom{width:100%;padding: 10px; background: #f4b400; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 5px;}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Монитор статусов</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+
+        h2 { margin-top: 0; font-size: 1.2rem; }
+
+        .status-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover { opacity: 0.9; }
+
+        /* Цвета кнопок как на макете */
+        .btn-study { background-color: #28a745; }
+        .btn-coffee { background-color: #ffc107; color: black; }
+        .btn-game { background-color: #17a2b8; }
+        .btn-home { background-color: #6c757d; }
+
+        #grouplist {
+            margin-top: 15px;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        #myInfo {
+            font-weight: 500;
+            color: #444;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-  <div class="form-container">
-    <h3>Отправить заявку</h3>
-    <form id="feedbackForm">
-      <input type="text" id="userName" placeholder="Ваше имя" required>
-      <input type="email" id="userEmail" placeholder="Ваш Email" required>
-      <button type="submit">Отправить в облако</button>
-    </form>
-  </div>
-  <script type="module">
-    import{ initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import {getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestone.js";
-    const firebaseConfig = {
-  apiKey: "AIzaSyCnjJxE2ry4Sd492cwlNl97E9Q85Ty8B50",
-  authDomain: "po243-33066.firebaseapp.com",
-  projectId: "po243-33066",
-  storageBucket: "po243-33066.firebasestorage.app",
-  messagingSenderId: "240959090511",
-  appId: "1:240959090511:web:e76328440a6ab99bba1f3a",
-  measurementId: "G-PD2VFPBJPE"
-};
-    
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 
-    document.getElementById("feedbackForm").addEventListener("submit", asyc (e)=>{
-                                                             e.preventDefault();
-      const nameInput=document.getElementById("userName").value;
-      const emailInput = document.getElementById("userEmail").value;
+    <div class="card">
+        <h2>Мой профиль</h2>
+        <div id="myInfo">Загрузка профиля...</div>
+        
+        <div class="status-buttons">
+            <button class="btn-study" onclick="changeStatus('Учусь', '#28a745')">📚 Учусь</button>
+            <button class="btn-coffee" onclick="changeStatus('Кофе-брейк', '#ffc107')">☕ Кофе</button>
+            <button class="btn-game" onclick="changeStatus('В игре', '#17a2b8')">🎮 В игре</button>
+            <button class="btn-home" onclick="changeStatus('Дома', '#6c757d')">🏠 Дома</button>
+        </div>
+    </div>
 
-      try {await addDoc(collection(db, "requests"),{
-        name: nameInput,
-        email:emailInput,
+    <div class="card">
+        <h2>Монитор группы</h2>
+        <div id="grouplist">
+            </div>
+    </div>
 
-        try {
-          await addDpc(collection(db,"requests"), {
-            name:nameInput,
-            email:emailInput,
-            timestamp:new Date()
-        });
-        alert("Готово!Данные сохранены в Firebase.")
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+        const URL = 'https://enkhcfubkyncpfndzsjr.supabase.co';
+        const KEY = 'sb_publishable_kdI1Tj2bSK1f4ZG9WUVp9Q_4frIHtkf';
+        const supabase = createClient(URL, KEY);
+
+        const MY_ID = '38314be8-676e-4127-8301-702199a07ff1';
+
+        window.changeStatus = async (text, color) => {
+            const { error } = await supabase
+                .from('profiles')
+                .update({ status: text, color: color })
+                .eq('id', MY_ID);
+
+            if (error) {
+                alert("Ошибка! Проверьте RLS политики в Supabase.");
+                console.error(error);
+            } else {
+                fetchGroup();
+            }
+        };
+
+        async function fetchGroup() {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .order('username', { ascending: true });
+
+            if (error) return console.error(error);
+
+            // Отрисовка списка группы
+            const list = document.getElementById('grouplist');
+            list.innerHTML = data.map(user => `
+                <div class="user-item">
+                    <div class="status-dot" style="background: ${user.color || '#ccc'}"></div>
+                    <div style="flex-grow: 1;">
+                        <strong>${user.username}</strong><br>
+                        <small style="color: #666;">${user.status || 'Статус не задан'}</small>
+                    </div>
+                </div>
+            `).join('');
+
+            // Информация о текущем пользователе
+            const me = data.find(u => u.id === MY_ID);
+            if (me) {
+                document.getElementById('myInfo').innerText = `Вы зашли как: ${me.username}`;
+            }
+        }
+
+        // Начальная загрузка
+        fetchGroup();
+
+        // Обновление каждые 5 секунд
+        setInterval(fetchGroup, 5000);
+    </script>
 </body>
 </html>
